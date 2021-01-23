@@ -71,13 +71,15 @@ See [examples/benchmark_matmul.py](examples/benchmark_matmul.py) for a more comp
 python -m tfbm examples/benchmark_matmul.py --group_by=device,spec --style=markdown
 ```
 
------------------------------------------------------------------------------------
 Results for device=gpu,spec=None
 Uniform results:
+
 | run_id |    cls | device | iters |
 |--------|--------|--------|-------|
 |    NOW | Matmul |    gpu |    10 |
+
 Varied results:
+
 |                        test | wall_time (us) | max_mem_GPU_0_bfc (Mb) | max_mem_gpu_host_bfc (b) | xla_jit |
 |-----------------------------|----------------|------------------------|--------------------------|---------|
 |      matmul_unstack_xla_gpu |        343.680 |                  8.000 |                   49.000 |    True |
@@ -85,13 +87,17 @@ Varied results:
 |        matmul_transpose_gpu |       1397.848 |                   12.0 |                    8.000 |   False |
 |           matmul_einsum_gpu |       1467.109 |                   12.0 |                    8.000 |   False |
 |          matmul_unstack_gpu |      51267.385 |               4104.000 |                     12.0 |   False |
+
 -----------------------------------------------------------------------------------
 Results for device=gpu,spec=XL
 Uniform results:
+
 | run_id |    cls | device | iters | spec |
 |--------|--------|--------|-------|------|
 |    NOW | Matmul |    gpu |    10 |   XL |
+
 Varied results:
+
 |                           test | wall_time (ms) | max_mem_GPU_0_bfc (Mb) | max_mem_gpu_host_bfc (b) | xla_jit |
 |--------------------------------|----------------|------------------------|--------------------------|---------|
 |      matmul_unstack_XL_xla_gpu |          3.013 |                128.000 |                   49.000 |    True |
@@ -99,13 +105,17 @@ Varied results:
 | matmul_manual_transpose_XL_gpu |         64.941 |                  192.0 |                    8.000 |   False |
 |        matmul_transpose_XL_gpu |         65.027 |                  192.0 |                    8.000 |   False |
 |          matmul_unstack_XL_gpu |       2790.027 |             262272.000 |                     12.0 |   False |
+
 -----------------------------------------------------------------------------------
 Results for device=cpu,spec=None
 Uniform results:
+
 | run_id |    cls | device | iters |
 |--------|--------|--------|-------|
 |    NOW | Matmul |    cpu |    10 |
+
 Varied results:
+
 |                        test | wall_time (ms) | max_mem_cpu (Mb) | max_mem_gpu_host_bfc (b) | xla_jit |
 |-----------------------------|----------------|------------------|--------------------------|---------|
 |      matmul_unstack_xla_cpu |          4.453 |            8.000 |                     49.0 |    True |
