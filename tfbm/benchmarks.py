@@ -32,6 +32,8 @@ def run_benchmark(
     separate_compiled_gradients: bool = False,
     name: Optional[str] = None,
     extras: Optional[Mapping[str, Union[str, float]]] = None,
+    burn_iters: int = 2,
+    min_iters: int = 10,
 ):
     """Build a graph and run benchmarks against it, with or without XLA.
 
@@ -40,6 +42,7 @@ def run_benchmark(
         - if provided, the `name` parameter is used as is without xla or device
             suffixes.
         - `extras` recevied "xla_jit" (as string), "device" items
+        - `builder_fn` may return a single tensor
 
     Args:
         tf_bench: An instance of tf.test.Benchmark, used to run the benchmark.
@@ -90,7 +93,12 @@ def run_benchmark(
                 )
                 name = f"{builder_fn.__name__}_{suffix}"
             tf_bench.run_op_benchmark(
-                sess, targets, name=name, extras=extras,
+                sess,
+                targets,
+                name=name,
+                extras=extras,
+                burn_iters=burn_iters,
+                min_iters=min_iters,
             )
 
 
@@ -143,6 +151,8 @@ class BenchmarkSpec:
         name: Optional[str] = None,
         args: Iterable = (),
         kwargs: Optional[Mapping] = None,
+        burn_iters: Optional[int] = None,
+        min_iters: Optional[int] = None,
     ):
         self.device = device
         self.xla_jit = xla_jit
@@ -151,6 +161,8 @@ class BenchmarkSpec:
         self.name = name
         self.args = tuple(args)
         self.kwargs = kwargs or {}
+        self.burn_iters = burn_iters
+        self.min_iters = min_iters
 
     def with_updates(self, other: "BenchmarkSpec") -> "BenchmarkSpec":
         """Get a new `BenchmarkSpec` with `self` overriden by `other`."""
@@ -168,6 +180,8 @@ class BenchmarkSpec:
             kwargs=_updated_dict(self.kwargs, other.kwargs),
             extras=_updated_dict(self.extras, other.extras),
             name=name,
+            burn_iters=other.burn_iters or self.burn_iters,
+            min_iters=other.min_iters or self.min_iters,
         )
 
     def benchmark_method(
@@ -197,6 +211,7 @@ class BenchmarkSpec:
                 extras = dict(extras)
                 assert "spec" not in extras
                 extras["spec"] = self.name
+            kwargs = dict(burn_iters=self.burn_iters, min_iters=self.min_iters)
             return run_benchmark(
                 tf_bench,
                 builder_fn,
@@ -205,6 +220,7 @@ class BenchmarkSpec:
                 separate_compiled_gradients=separate_compiled_gradients,
                 extras=extras,
                 name=name,
+                **{k: v for k, v in kwargs.items() if v is not None},
             )
 
         ret_fn.__name__ = f"benchmark_{name}"
@@ -231,6 +247,8 @@ def benchmark(
     extras: Optional[Mapping] = None,
     args: Iterable = (),
     kwargs: Optional[Mapping] = None,
+    burn_iters: Optional[int] = None,
+    min_iters: Optional[int] = None,
 ):
     """
     Factory for creating a `BenchmarkSpec` that can also be used as a decorator.
@@ -246,7 +264,16 @@ def benchmark(
     """
     # support use as @benchmark
     if callable(name):
-        return benchmark()(name)
+        return benchmark(
+            device=device,
+            xla_jit=xla_jit,
+            separate_compiled_gradients=separate_compiled_gradients,
+            extras=extras,
+            args=args,
+            kwargs=kwargs,
+            burn_iters=burn_iters,
+            min_iters=min_iters,
+        )(name)
 
     return BenchmarkSpec(
         name=name,
@@ -256,6 +283,8 @@ def benchmark(
         args=args,
         kwargs=kwargs,
         extras=extras,
+        burn_iters=burn_iters,
+        min_iters=min_iters,
     )
 
 
