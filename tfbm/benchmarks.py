@@ -5,7 +5,7 @@ from typing import Callable, Iterable, Mapping, Optional, Union
 import tensorflow as tf
 from tensorflow.core.protobuf import config_pb2  # pylint: disable=no-name-in-module
 
-_BENCHMARK_SPECS = "_benchmark_specS"
+_BENCHMARK_SPECS = "_benchmark_specs"
 
 
 def spec_suffix(device: bool, xla_jit: bool, separate_compiled_gradients: bool):
