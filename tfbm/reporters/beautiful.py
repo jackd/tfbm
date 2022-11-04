@@ -69,7 +69,9 @@ def get_table(
 
     terminal_shape = shutil.get_terminal_size()
     table = bt.BeautifulTable(
-        maxwidth=terminal_shape[0], default_alignment=bt.ALIGN_RIGHT
+        maxwidth=terminal_shape[0],
+        default_alignment=bt.ALIGN_RIGHT,
+        detect_numerics=False,  # ensures trailing zeros aren't cropped
     )
     if style is not None:
         table.set_style(get_style(style))
